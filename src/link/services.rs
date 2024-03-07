@@ -96,7 +96,7 @@ pub async fn create_link(
 
 
 
-    let result = sqlx::query("Insert INTO  \"public\".\"Link\" (name, originalLink, path) values ($1, $2, $3)")
+    let result = sqlx::query("INSERT INTO \"Link\" (name, \"originalLink\", path) values ($1, $2, $3)")
         .bind(create_link.name.clone())
         .bind(create_link.original_link.clone())
         .bind(&path)
@@ -105,7 +105,7 @@ pub async fn create_link(
     if result.is_err(){
         println!("Error on create link {:?}", result.err());
 
-        return Err(CustomError::InternalError(format!("Error on create link for {path}")));
+        return Err(CustomError::InternalError(format!("Error on create link: {0}", create_link.original_link)));
     }
 
     let new_link_result = fech_by_path(db, &path.clone()).await;
