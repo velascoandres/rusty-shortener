@@ -1,7 +1,7 @@
 use actix_web::{get, post, web::{self, Data}, HttpResponse, Responder};
 use validator::Validate;
 
-use crate::{errors::{CustomError, ErrorResponse}, link::services, state::AppState};
+use crate::{errors::{CustomError, ErrorResponse}, state::AppState};
 
 use super::models::{CreateLink, SearchLink};
 
@@ -15,7 +15,7 @@ pub async fn create_link(state: Data<AppState>, json: web::Json<CreateLink>) -> 
         return HttpResponse::BadRequest().json(is_valid.err().unwrap());
     }
 
-    let create_result = services::create_link(&state.db, &json.into_inner()).await;
+    let create_result = state.link_repository.create(&json.into_inner()).await;
     
     match create_result {
         Ok(created_link) => HttpResponse::Ok().json(created_link),
@@ -32,7 +32,8 @@ pub async fn get_links(state: Data<AppState>, query: web::Query<SearchLink>) -> 
         return HttpResponse::BadRequest().json(is_valid.err().unwrap());
     }
 
-    let result = services::fetch_links(&state.db, query.into_inner()).await;
+
+    let result = state.link_repository.find_many(query.into_inner()).await;
 
     match result {
         Ok(fetch_reponse) => HttpResponse::Ok().json(fetch_reponse),

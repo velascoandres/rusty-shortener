@@ -1,5 +1,6 @@
-use crate::db::ConnectionPool;
+use crate::link::repository::LinkRepository;
+
 
 pub struct AppState {
-    pub db: ConnectionPool
+    pub link_repository: LinkRepository
 }

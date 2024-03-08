@@ -6,7 +6,7 @@ use actix_web::{
     web::{self, Data},
     App, HttpResponse, HttpServer, Responder,
 };
-use rusty_shortener::{db::get_pool, link, redirect::redirect_handler, state::AppState, views};
+use rusty_shortener::{db::get_pool, link::{self, repository::LinkRepository}, redirect::redirect_handler, state::AppState, views};
 
 async fn manual_hello() -> impl Responder {
     HttpResponse::Ok().body("Hey there!")
@@ -15,12 +15,11 @@ async fn manual_hello() -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let connection_url = dotenv!("DATABASE_URL");
-
     let pool = get_pool(connection_url).await;
 
     HttpServer::new(move || {
         App::new()
-            .app_data(Data::new(AppState { db: pool.clone() }))
+            .app_data(Data::new(AppState { link_repository: LinkRepository::new(pool.clone()) }))
             .service(
                 web::scope("/api").service(
                     web::scope("/link")

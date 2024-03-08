@@ -1,12 +1,12 @@
 use actix_web::{web::{self, Redirect}, Responder};
 
-use crate::{errors::CustomError, link, state::AppState};
+use crate::{errors::CustomError, state::AppState};
 
 
 pub async fn redirect_handler(state: web::Data<AppState>,path: web::Path<(String,)>) -> impl Responder {
     let path = path.into_inner().0;
 
-    let link_result = link::services::fech_by_path(&state.db, &path).await;
+    let link_result = state.link_repository.find_by_path(&path).await;
 
     if let Err(error) = link_result {
         return match error {
